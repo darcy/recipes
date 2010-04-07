@@ -30,6 +30,7 @@ Small collection of cap recipes.
   load('lib/recipes/nginx.rb')
   load('lib/recipes/passenger.rb')
   load('lib/recipes/git.rb')
+  load('lib/recipes/deploy.rb')
   load('lib/recipes/symlink_configs.rb')
   load('lib/recipes/ci.rb')
 
