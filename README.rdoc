@@ -1,0 +1,62 @@
+= Description
+
+Small collection of cap recipes.
+
+
+= Usage
+
+
+== 1. Capify
+
+  capify .
+  
+
+== 2a. Checkout out this to lib
+
+  git checkout git://github.com:darcy/recipes.git lib/recipes
+  rm -rf lib/recipes/.git
+
+
+== 2b. Add this repo as a submodule
+
+  git submodule add git@github.com:darcy/recipes.git lib/recipes
+  git submodule init
+  git submodule update
+  
+  
+== 3. Add scripts as needed to deploy.rb
+
+  load('lib/recipes/slicehost.rb')
+  load('lib/recipes/nginx.rb')
+  load('lib/recipes/passenger.rb')
+  load('lib/recipes/git.rb')
+  load('lib/recipes/symlink_configs.rb')
+  load('lib/recipes/ci.rb')
+
+
+== 4. Optionally, config the deploy script with environments
+
+  set :application, "app"
+  set :repository,  "git@github.com:repo/app.git"
+
+  #############################################################
+  # Servers
+  #############################################################
+ 
+  task :production do
+    set :rails_env, "production"
+    set :branch, "production"
+    set :domain, "127.0.0.1"
+    server domain, :app, :web
+    role :db, domain, :primary => true
+    set :web_domain, "www.example.com"
+  end
+
+  task :staging do
+    set :rails_env, "production"
+    set :branch, "staging"
+    set :domain, "127.0.0.1"
+    server domain, :app, :web
+    role :db, domain, :primary => true
+    set :web_domain, "staging.example.com"
+  end
