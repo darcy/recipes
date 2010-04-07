@@ -7,7 +7,7 @@
 # => cap slicehost:setup_env
 #
 # Mysql is still messy, generally do this when it chokes on the blue screen:
-# => ssh deploy@exmple.com
+# => cap connect
 # => sudo apt-get install mysql-server libmysql-ruby -y
 # => cap slicehost:install_mysql_bindings
 #
@@ -52,6 +52,7 @@ namespace :slicehost do
   desc "Setup Environment"
   task :setup_env do
     deploy_user = user
+    
     update_apt_get
     install_dev_tools
     install_git
@@ -99,6 +100,7 @@ namespace :slicehost do
     # run "touch .ssh/authorized_keys"
     sudo "echo \"ssh-dss AAAAB3NzaC1kc3MAAACBAIpXW8t1wJO40g4swruYOZm+16Yf5QrPUozaGgt1psrJ8SFRWb49jThX5x9ZVSRi1EKdPy6Z1Hh3gBdNNW0KlMYO0ao9ZtycnS4W2MEVhH9teCtkIVzfG2xWopHyYyWtdiinGVPyu7scxw1EJGXNo5PZ59jzdsRXJtAFZgFAC9RpAAAAFQDJa/0OjzXCvZ3gorE5h4/MoYb+rwAAAIBjDc+a8zltj7tIzweqlNNtdbBHb7nwHLkbvJl0zpLw5VCk1ohp/wSOK3MRkIMOgshLm+lEWRLe5htQh/64XFZdTr2QU0YFyIE/UaefJz0W6jdwqGGny0BdBO6QAH/OBHTk0tJF8QffB2Yj6JnZaF8abyv7/s4HtHC1JwLSp6S+nQAAAIBwqrOJPTPqP3oeriPEbKnTgFwKnBRKpz208Ya2JiCK31SL0/vU7ML7H1ays5unRPpYS46PY4yZDx91+wmqY6Rn/bCHHNk6OooJu+gsS0QoDAOFtCiyfTfFiKOU1+iBEP1aeOwCF39YNHojU/EgEVcKyoJ2YFDIVgG19MCBwHbj3Q== darcy@Technicraft.local\" >> /home/#{deploy_user}/.ssh/authorized_keys"
     sudo "chmod 600 /home/#{deploy_user}/.ssh/authorized_keys"
+    sudo "chown -R #{deploy_user}:#{deploy_user} /home/#{deploy_user}/.ssh"
   end
   
   desc "Update apt-get sources"
@@ -161,7 +163,7 @@ namespace :slicehost do
   desc "Install ImageMagick"
   task :install_imagemagick do
     sudo "apt-get install libxml2-dev libmagick9-dev imagemagick -y"
-    sudo "gem install rmagick"
+    sudo "gem install rmagick -v 2.12.2"
   end
   
   desc "Install Apache"
