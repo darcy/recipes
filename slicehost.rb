@@ -10,6 +10,7 @@
 # => cap connect
 # => sudo apt-get install mysql-server libmysql-ruby -y
 # => cap slicehost:install_mysql_bindings
+# => cap slicehost:create_databases
 #
 # Deploy
 # => cap deploy:long
@@ -65,11 +66,13 @@ namespace :slicehost do
     config_vhost
     install_imagemagick
     top.deploy.setup
+    setup_config
     sudo "chown -R #{user}:#{user} /home/#{user}"
     
     
     install_mysql #this is still funky - just run 'sudo apt-get install mysql-server libmysql-ruby -y'
     install_mysql_bindings
+    create_databases
   end
   
   task :setup_user do
@@ -103,6 +106,34 @@ namespace :slicehost do
     sudo "chown -R #{deploy_user}:#{deploy_user} /home/#{deploy_user}/.ssh"
   end
   
+  task :setup_config do
+    db_config = ERB.new <<-EOF
+production:
+  adapter: mysql
+  encoding: utf8
+  database: #{application}_production
+  username: root
+  password: 
+  socket: /var/run/mysqld/mysqld.sock
+
+staging:
+  adapter: mysql
+  encoding: utf8
+  database: #{application}_staging
+  username: root
+  password: 
+  socket: /var/run/mysqld/mysqld.sock
+      EOF
+      run "mkdir -p #{shared_path}/config" 
+      run "mkdir -p #{shared_path}/public/files" 
+      put db_config.result, "#{shared_path}/config/database.yml"
+  end
+
+  task :create_databases do
+    run "mysqladmin -uroot create #{application}_production"
+    run "mysqladmin -uroot create #{application}_staging"
+  end
+
   desc "Update apt-get sources"
   task :update_apt_get do
     sudo "apt-get update"
