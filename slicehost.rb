@@ -52,10 +52,16 @@ namespace :slicehost do
 
   desc "Use this after you clone a prod server to a staging server, run as cap staging slicehost:setup_staging"
   task :setup_staging do
+    if rails_env != "staging"
+      puts "this is to be run in with the staging environment"
+      puts "=> cap staging slicehost:setup_staging"
+      exit
+    end
     run "mysqladmin -uroot drop -f #{application}_staging"
     run "mysqladmin -uroot create #{application}_staging"
-    run "mysqldump -uroot #{application}_production > dump.sql"
-    run "mysql -uroot #{application}_staging < dump.sql"
+    run "mysqldump -uroot #{application}_production > production-dump.sql"
+    run "mysqladmin -uroot drop -f #{application}_production" #we have a backup now, safe
+    run "mysql -uroot #{application}_staging < production-dump.sql"
     config_apache_vhost
     apache_reload
     deploy.restart
