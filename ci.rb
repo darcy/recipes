@@ -1,11 +1,14 @@
 # run tests before deploying
-# You can always skip tests: cap staging deploy -s skip_test=1
 
 namespace :certify do
   
   task :default do
-    top.ci.tests
-    top.ci.features
+    top.certify.tests
+    top.certify.features
+    top.vcs.certify
+  end
+
+  task :force do
     top.vcs.certify
   end
   

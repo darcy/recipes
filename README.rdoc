@@ -36,6 +36,10 @@ Small collection of cap recipes.
 
 == 4. Optionally, config the deploy script with environments
 
+  # Deploy:
+  # => cap staging certify deploy
+  # => cap production certify:force deploy
+
   set :application, "app"
   set :repository,  "git@github.com:repo/app.git"
 
@@ -46,6 +50,7 @@ Small collection of cap recipes.
   task :production do
     set :rails_env, "production"
     set :branch, "production"
+    set :certify_branch, "staging"
     set :domain, "127.0.0.1"
     server domain, :app, :web
     role :db, domain, :primary => true
@@ -53,8 +58,9 @@ Small collection of cap recipes.
   end
 
   task :staging do
-    set :rails_env, "production"
+    set :rails_env, "production" #set to staging if you have that setup
     set :branch, "staging"
+    set :certify_branch, "origin/master"
     set :domain, "127.0.0.1"
     server domain, :app, :web
     role :db, domain, :primary => true

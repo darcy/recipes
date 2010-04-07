@@ -4,15 +4,7 @@ set :git_enable_submodules, 1
 
 namespace :vcs do
   task :certify do
-    if branch == "staging"
-      certify = "origin/stable"
-    elsif branch == "production"
-      certify = "staging"
-    else
-      puts "Nothing to certify"
-      exit
-    end
-    run_locally source.local.scm("tag", "-f", branch, certify)
+    run_locally source.local.scm("tag", "-f", branch, certify_branch)
     run_locally source.local.scm("push", "-f", fetch(:repository), "tag", branch)
   end
 
