@@ -33,6 +33,7 @@ Small collection of cap recipes.
   load('lib/recipes/deploy.rb')
   load('lib/recipes/symlink_configs.rb')
   load('lib/recipes/certify.rb')
+  load('lib/recipes/connect.rb')
 
 
 == 4. Optionally, config the deploy script with environments
