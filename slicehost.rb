@@ -50,6 +50,17 @@ set :deploy_via, :remote_cache
 
 namespace :slicehost do
 
+  desc "Use this after you clone a prod server to a staging server, run as cap staging slicehost:setup_staging"
+  task :setup_staging do
+    run "mysqladmin -uroot drop -f #{application}_staging"
+    run "mysqladmin -uroot create #{application}_staging"
+    run "mysqldump -uroot #{application}_production > dump.sql"
+    run "mysql -uroot #{application}_staging < dump.sql"
+    config_apache_vhost
+    apache_reload
+    deploy.restart
+  end
+  
   desc "Setup Environment"
   task :setup_env do
     deploy_user = user
@@ -63,7 +74,8 @@ namespace :slicehost do
     config_passenger_apache
     # config_passenger_nginx
     # config_nginx
-    config_vhost
+    config_apache_vhost
+    config_apache_mods
     install_imagemagick
     top.deploy.setup
     setup_config
@@ -348,37 +360,45 @@ PassengerRuby /usr/bin/ruby1.8
   # end
 
   desc "Configure VHost"
-  task :config_vhost do
+  task :config_apache_vhost do
     vhost_config =<<-EOF
     <VirtualHost *:80>
       ServerName #{web_domain}
       DocumentRoot #{deploy_to}/current/public
-    </VirtualHost>
-    <VirtualHost *:443>
-      ServerName #{web_domain}
-      DocumentRoot #{deploy_to}/current/public
-      SSLEngine on
-      SSLCertificateFile ssl/#{web_domain}.crt
-      SSLCertificateKeyFile ssl/#{web_domain}.key
-      SSLCertificateChainFile ssl/gd_bundle.crt
-      #SSLCertificateFile ssl/server.crt
-      #SSLCertificateKeyFile ssl/server.key
-      #SSLCertificateChainFile /etc/pki/tls/certs/CompanyIssuingCA1.crt
-      SSLProtocol all -SSLv2 
+      RailsEnv #{rails_env}
     </VirtualHost>
     EOF
+    if exists?(:ssl_file)
+      # SSLCertificateChainFile ssl/gd_bundle.crt
+      chain_file = exists?(:ssl_chain_file) ? "SSLCertificateChainFile ssl/#{ssl_chain_file}.crt" : ""
+      vhost_config +=<<-EOF    
+      <VirtualHost *:443>
+        ServerName #{web_domain}
+        DocumentRoot #{deploy_to}/current/public
+        RailsEnv #{rails_env}
+        SSLEngine on
+        SSLCertificateFile ssl/#{ssl_file}.crt
+        SSLCertificateKeyFile ssl/#{ssl_file}.key
+        #{chain_file}
+        SSLProtocol all -SSLv2 
+      </VirtualHost>
+      EOF
+    end
     put vhost_config, "src/vhost_config"
     sudo "mv src/vhost_config /etc/apache2/sites-available/#{application}"
     sudo "a2ensite #{application}"
+  end
+  
+  task :config_apache_mods do
     sudo "a2enmod ssl"
     sudo "a2enmod rewrite"
     sudo "sudo a2dissite default"
   end
   # 
-  # desc "Reload Apache"
-  # task :apache_reload do
-  #   sudo "/etc/init.d/apache2 reload"
-  # end
+  desc "Reload Apache"
+  task :apache_reload do
+    sudo "/etc/init.d/apache2 reload"
+  end
 end
 
 before("deploy:cleanup") { set :use_sudo, false }
