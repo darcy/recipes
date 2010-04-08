@@ -67,3 +67,6 @@ Small collection of cap recipes.
     role :db, domain, :primary => true
     set :web_domain, "staging.example.com"
   end
+
+  on :before, "slicehost:config"
+  
