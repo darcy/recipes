@@ -24,18 +24,17 @@ Small collection of cap recipes.
   git submodule update
   
   
-== 3. Add scripts as needed to deploy.rb
+== 3a. Add selected scripts as needed to deploy.rb
 
-  load('lib/recipes/slicehost.rb')
-  load('lib/recipes/nginx.rb')
-  load('lib/recipes/passenger.rb')
-  load('lib/recipes/git.rb')
-  load('lib/recipes/deploy.rb')
-  load('lib/recipes/symlink_configs.rb')
+  load('lib/recipes/backup.rb')
   load('lib/recipes/certify.rb')
-  load('lib/recipes/connect.rb')
 
 
+== 3b. Add all the scripts
+
+  Dir['lib/recipes/*.rb'].each { |plugin| load(plugin) }
+ 
+ 
 == 4. Optionally, config the deploy script with environments
 
   # Deploy:
