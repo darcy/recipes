@@ -160,6 +160,7 @@ staging:
   desc "Install Development Tools"
   task :install_dev_tools do
     sudo "apt-get install build-essential -y"
+    sudo "apt-get install zip -y"
     sudo "apt-get install unzip -y"
   end
   
