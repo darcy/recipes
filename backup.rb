@@ -1,7 +1,5 @@
 namespace :backup do
 
-  set :backup_path, "#{shared_path}/backups"
-
   desc "Backup both files and the database on the server, and bundles it into a zip"
   task :default do
     db
@@ -44,10 +42,10 @@ namespace :backup do
   end
   
   task :backup_name do
+    set :backup_path, "#{shared_path}/backups"
     set :backup_file, "backup-#{release_name}" if !exists?(:backup_file)
     backup_file
   end
-  
 end
 
 before "deploy:migrate", "backup:db"

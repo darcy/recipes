@@ -38,17 +38,20 @@
 #   add at the top: PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 #
 
-set :nginx_dir, "/etc/nginx"
-set :user,                "deploy"
-set :deploy_to, "/home/deploy/#{application}"
-default_run_options[:pty] = true
-ssh_options[:forward_agent] = true
-set :use_sudo, true
-set :scm_verbose, true
-set :deploy_via, :remote_cache
 
 namespace :slicehost do
 
+  task :config do
+    set :nginx_dir, "/etc/nginx"
+    set :user,                "deploy"
+    set :deploy_to, "/home/deploy/#{application}"
+    set :shared_path, "#{deploy_to}/shared" #bug where this wasn't getting set correctly
+    default_run_options[:pty] = true
+    set :use_sudo, true
+    set :scm_verbose, true
+    set :deploy_via, :remote_cache
+  end
+  
   desc "Use this after you clone a prod server to a staging server, run as cap staging slicehost:setup_staging"
   task :setup_staging do
     if rails_env != "staging"
