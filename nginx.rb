@@ -1,14 +1,14 @@
-namespace :deploy do
+namespace :nginx do
   
-  task :stop_nginx do
+  task :stop do
     sudo "/etc/init.d/nginx stop"
   end
   
-  task :start_nginx do
+  task :start do
     sudo "/etc/init.d/nginx start"
   end
   
-  task :restart_nginx do
+  task :restart do
     sudo "/etc/init.d/nginx restart"
     restart
   end

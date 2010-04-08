@@ -9,8 +9,7 @@
 # Mysql is still messy, generally do this when it chokes on the blue screen:
 # => cap connect
 # => sudo apt-get install mysql-server libmysql-ruby -y
-# => cap slicehost:install_mysql_bindings
-# => cap slicehost:create_databases
+# => cap slicehost:finalize_setup
 #
 # Deploy
 # => cap deploy:long
@@ -63,8 +62,8 @@ namespace :slicehost do
     run "mysqladmin -uroot drop -f #{application}_production" #we have a backup now, safe
     run "mysql -uroot #{application}_staging < production-dump.sql"
     config_apache_vhost
-    apache_reload
-    deploy.restart
+    top.apache.reload
+    top.deploy.restart
   end
   
   desc "Setup Environment"
@@ -82,6 +81,7 @@ namespace :slicehost do
     # config_nginx
     config_apache_vhost
     config_apache_mods
+    top.apache.reload
     install_imagemagick
     top.deploy.setup
     setup_config
@@ -89,6 +89,10 @@ namespace :slicehost do
     
     
     install_mysql #this is still funky - just run 'sudo apt-get install mysql-server libmysql-ruby -y'
+    finalize_setup
+  end
+
+  task :finalize_setup do
     install_mysql_bindings
     create_databases
   end
@@ -402,10 +406,6 @@ PassengerRuby /usr/bin/ruby1.8
     sudo "sudo a2dissite default"
   end
   # 
-  desc "Reload Apache"
-  task :apache_reload do
-    sudo "/etc/init.d/apache2 reload"
-  end
 end
 
 before("deploy:cleanup") { set :use_sudo, false }
