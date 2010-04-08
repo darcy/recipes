@@ -21,21 +21,13 @@
 #
 # NOTES:
 # Crontab issues
-# 1. crontab editor wrong
-#   export EDITOR=“/usr/bin/vim”
-# 2. crontab permissions off
-#   add user to the crontab group
-#     sudo vi /etc/group
-#     log out and back in
-#   fix permissions on crontabs
-#     cd /var/spool/cron && sudo chgrp crontab crontabs && sudo chmod 730 crontabs
 # 3. not logging
 #   sudo vi /etc/syslog.conf
 #   enable the line that has cron
 #   sudo /etc/init.d/sysklogd restart
 # 4. environment not setup
 #   crontab -e
-#   add at the top: PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+#   add at the top: 
 #
 
 
@@ -50,23 +42,6 @@ namespace :slicehost do
     set :use_sudo, true
     set :scm_verbose, true
     set :deploy_via, :remote_cache
-  end
-  
-  desc "Use this after you clone a prod server to a staging server, run as cap staging slicehost:setup_staging"
-  task :setup_staging do
-    if rails_env != "staging"
-      puts "this is to be run in with the staging environment"
-      puts "=> cap staging slicehost:setup_staging"
-      exit
-    end
-    run "mysqladmin -uroot drop -f #{application}_staging"
-    run "mysqladmin -uroot create #{application}_staging"
-    run "mysqldump -uroot #{application}_production > production-dump.sql"
-    run "mysqladmin -uroot drop -f #{application}_production" #we have a backup now, safe
-    run "mysql -uroot #{application}_staging < production-dump.sql"
-    config_apache_vhost
-    top.apache.reload
-    top.deploy.restart
   end
   
   desc "Setup Environment"
@@ -89,12 +64,40 @@ namespace :slicehost do
     top.deploy.setup
     setup_config
     sudo "chown -R #{user}:#{user} /home/#{user}"
-    
+    setup_crontab
     
     install_mysql #this is still funky - just run 'sudo apt-get install mysql-server libmysql-ruby -y'
     finalize_setup
   end
 
+  task :setup_crontab do
+    deploy_user = user
+    run "echo 'EDITOR=\"/usr/bin/vim\"' >> /home/#{deploy_user}/.bash_profile"
+    sudo "usermod -a -G crontab #{deploy_user}"
+    sudo "chgrp crontab /var/spool/cron/crontabs"
+    sudo "chmod 730 /var/spool/cron/crontabs"
+    sudo "sed -i 's/#cron/cron/g' /etc/syslog.conf"
+    sudo "/etc/init.d/sysklogd restart"
+    top.crontab.setup_files
+  end
+  
+  desc "Use this after you clone a prod server to a staging server, run as cap staging slicehost:setup_staging"
+  task :setup_staging do
+    if rails_env != "staging"
+      puts "this is to be run in with the staging environment"
+      puts "=> cap staging slicehost:setup_staging"
+      exit
+    end
+    run "mysqladmin -uroot drop -f #{application}_staging"
+    run "mysqladmin -uroot create #{application}_staging"
+    run "mysqldump -uroot #{application}_production > production-dump.sql"
+    run "mysqladmin -uroot drop -f #{application}_production" #we have a backup now, safe
+    run "mysql -uroot #{application}_staging < production-dump.sql"
+    config_apache_vhost
+    top.apache.reload
+    top.deploy.restart
+  end
+  
   task :finalize_setup do
     install_mysql_bindings
     create_databases
