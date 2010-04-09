@@ -73,6 +73,7 @@ namespace :slicehost do
   task :setup_crontab do
     deploy_user = user
     run "echo 'EDITOR=\"/usr/bin/vim\"' >> /home/#{deploy_user}/.bash_profile"
+    run "echo 'export EDITOR' >> /home/#{deploy_user}/.bash_profile"
     sudo "usermod -a -G crontab #{deploy_user}"
     sudo "chgrp crontab /var/spool/cron/crontabs"
     sudo "chmod 730 /var/spool/cron/crontabs"
