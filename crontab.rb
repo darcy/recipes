@@ -11,12 +11,13 @@ namespace :crontab do
   task :setup_files do
     path = "PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin"
     %w(production staging).each do |stage|
-    example1 = "#*/5 * * * * #{current_path}/script/runner -e #{stage} CronJob.often 2>&1>> #{shared_path}/log/jobs_often.log"
-    example2 = "#2 0 * * * #{current_path}/script/runner -e #{stage} CronJob.daily 2>&1>> #{shared_path}/log/jobs_daily.log"
+    example1 = "#*/5 * * * * #{current_path}/script/runner -e #{stage} CronJob.often >> #{shared_path}/log/jobs_often.log 2>&1"
+    example2 = "#2 0 * * * #{current_path}/script/runner -e #{stage} CronJob.daily >> #{shared_path}/log/jobs_daily.log 2>&1"
 
       run_locally "echo #{path} > script/crontab-#{stage}"
       run_locally "echo '#{example1}' >> script/crontab-#{stage}"
       run_locally "echo '#{example2}' >> script/crontab-#{stage}"
+      run_locally "echo '' >> script/crontab-#{stage}" #needs newline at the end of the file
     end
   end
 end
