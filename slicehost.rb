@@ -4,7 +4,7 @@
 #
 # Start out with:
 # => cap slicehost:setup_user
-# => cap slicehost:setup_env
+# => cap slicehost:setup_server
 #
 # Mysql is still messy, generally do this when it chokes on the blue screen:
 # => cap connect
@@ -45,7 +45,7 @@ namespace :slicehost do
   end
   
   desc "Setup Environment"
-  task :setup_env do
+  task :setup_server do
     deploy_user = user
     
     update_apt_get
@@ -55,19 +55,20 @@ namespace :slicehost do
     install_apache
     install_passenger
     config_passenger_apache
+    config_apache_mods
     # config_passenger_nginx
     # config_nginx
-    config_apache_vhost
-    config_apache_mods
     top.apache.reload
     install_imagemagick
-    top.deploy.setup
-    setup_config
-    sudo "chown -R #{user}:#{user} /home/#{user}"
     setup_crontab
+    sudo "chown -R #{user}:#{user} /home/#{user}"
     
     install_mysql #this is still funky - just run 'sudo apt-get install mysql-server libmysql-ruby -y'
-    finalize_setup
+    setup_server_finish
+  end
+
+  task :setup_server_finish do
+    install_mysql_bindings
   end
 
   task :setup_crontab do
@@ -79,7 +80,6 @@ namespace :slicehost do
     sudo "chmod 730 /var/spool/cron/crontabs"
     sudo "sed -i 's/#cron/cron/g' /etc/syslog.conf"
     sudo "/etc/init.d/sysklogd restart"
-    top.crontab.setup_files
   end
   
   desc "Use this after you clone a prod server to a staging server, run as cap staging slicehost:setup_staging"
@@ -99,9 +99,14 @@ namespace :slicehost do
     top.deploy.restart
   end
   
-  task :finalize_setup do
-    install_mysql_bindings
+  task :setup do
+    top.deploy.setup
+    # sudo "chown -R #{user}:#{user} /home/#{user}"
+    setup_config
     create_databases
+    config_apache_vhost
+    top.apache.reload
+    top.crontab.setup_files
   end
   
   task :setup_user do
@@ -380,8 +385,10 @@ PassengerRuby /usr/bin/ruby1.8
   desc "Configure VHost"
   task :config_apache_vhost do
     vhost_config =<<-EOF
+    NameVirtualHost *:80
     <VirtualHost *:80>
       ServerName #{web_domain}
+      ServerAlias #{web_alias}
       DocumentRoot #{deploy_to}/current/public
       RailsEnv #{rails_env}
     </VirtualHost>
@@ -390,8 +397,10 @@ PassengerRuby /usr/bin/ruby1.8
       # SSLCertificateChainFile ssl/gd_bundle.crt
       chain_file = exists?(:ssl_chain_file) ? "SSLCertificateChainFile ssl/#{ssl_chain_file}.crt" : ""
       vhost_config +=<<-EOF    
+      NameVirtualHost *:443
       <VirtualHost *:443>
         ServerName #{web_domain}
+        ServerAlias #{web_alias}
         DocumentRoot #{deploy_to}/current/public
         RailsEnv #{rails_env}
         SSLEngine on
