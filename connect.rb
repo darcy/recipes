@@ -1,17 +1,13 @@
 namespace :connect do
+  set :bash, "bash --rcfile /home/deploy/.bash_profile"
   desc "drop you in ssh on remote" 
   task :default do
-    exec "ssh #{user}@#{domain}"
+    exec "ssh -t #{user}@#{domain} \"cd #{deploy_to}; #{bash}\""
   end
   
   desc "remotely console" 
   task :console, :roles => :app do
-    input = ''
-    run "cd #{current_path} && ./script/console #{rails_env}" do |channel, stream, data|
-      next if data.chomp == input.chomp || data.chomp == ''
-      print data
-      channel.send_data(input = $stdin.gets) if data =~ /^(>|\?)>/
-    end
+    exec "ssh -t #{user}@#{domain} \"cd #{current_path}; RAILS_ENV=#{rails_env} script/console; #{bash}\""
   end
 
   desc "tail rails log files" 
@@ -25,12 +21,7 @@ namespace :connect do
 
   desc "remotely dbconsole (experimental)" 
   task :dbconsole, :roles => :app do
-    input = ''
-    run "cd #{current_path} && ./script/dbconsole #{rails_env}" do |channel, stream, data|
-      next if data.chomp == input.chomp || data.chomp == ''
-      print data
-      channel.send_data(input = $stdin.gets) if data =~ /^(mysql|    -)>/
-    end
+    exec "ssh -t #{user}@#{domain} \"cd #{current_path}; RAILS_ENV=#{rails_env} script/dbconsole; #{bash}\""
   end
   
 end
