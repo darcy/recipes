@@ -185,7 +185,7 @@ staging:
   task :install_git do
     sudo "apt-get install git-core git-svn -y"
     run "mkdir ~/bin"
-    run "cd bin; git clone http://github.com/BeezyT/git-ftp.git git-ftp.git; ln -s git-ftp.git/git-ftp.sh git-ftp"
+    run "cd bin; git clone http://github.com/darcy/git-ftp.git git-ftp.git; ln -s git-ftp.git/git-ftp.sh git-ftp"
     run "echo 'export PATH=$PATH:~/bin' >> ~/.bash_profile"
   end
   
