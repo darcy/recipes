@@ -4,6 +4,7 @@ namespace :certify do
   
   task :default do
     top.certify.tests
+    top.certify.specs
     top.certify.features
     top.vcs.certify
   end
@@ -26,8 +27,22 @@ namespace :certify do
     end
   end
 
+  task :specs do
+    if !exists?(:skip_specs)
+      unless system("rake spec")
+        puts "", "\033[0;31m" +
+        "   +++   SPECS FAILED, FIX THEM BEFORE DEPLOYING   +++   " +
+        "\033[m", ""
+        exit
+      end
+      puts "Specs passed"
+    else
+      puts "Skipping Specs"
+    end
+  end
+
   task :features do
-    if !exists?(:skip_test)
+    if !exists?(:skip_features)
       unless system("cucumber")
         puts "", "\033[0;31m" +
         "   +++   FEATURES FAILED, FIX THEM BEFORE DEPLOYING   +++   " +
@@ -36,7 +51,7 @@ namespace :certify do
       end
       puts "Features passed"
     else
-      puts "Skipping Tests"
+      puts "Skipping Features"
     end
   end
 
