@@ -178,11 +178,15 @@ staging:
     sudo "apt-get install build-essential -y"
     sudo "apt-get install zip -y"
     sudo "apt-get install unzip -y"
+    sudo "apt-get install rsync -y"
   end
   
   desc "Install Git"
   task :install_git do
     sudo "apt-get install git-core git-svn -y"
+    run "mkdir ~/bin"
+    run "cd bin; git clone http://github.com/BeezyT/git-ftp.git git-ftp.git; ln -s git-ftp.git/git-ftp.sh git-ftp"
+    run "echo 'export PATH=$PATH:~/bin' >> ~/.bash_profile"
   end
   
   desc "Install Subversion"
@@ -217,7 +221,8 @@ staging:
       "cd rubygems-1.3.1/ && sudo ruby setup.rb",
       "sudo ln -s /usr/bin/gem1.8 /usr/bin/gem",
       "sudo gem update --system",
-      "sudo gem install rails --no-ri --no-rdoc"
+      "sudo gem install rails --no-ri --no-rdoc",
+      "sudo gem install grit --no-ri --no-rdoc"
     ].each {|cmd| run cmd}
   end
   
