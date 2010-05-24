@@ -1,13 +1,15 @@
 namespace :connect do
   set :bash, "bash --rcfile /home/deploy/.bash_profile"
+  set :port, 22 unless exists? :port
+  
   desc "drop you in ssh on remote" 
   task :default do
-    exec "ssh -t #{user}@#{domain} \"cd #{deploy_to}; #{bash}\""
+    exec "ssh -t #{user}@#{domain} -p #{port} \"cd #{deploy_to}; #{bash}\""
   end
   
   desc "remotely console" 
   task :console, :roles => :app do
-    exec "ssh -t #{user}@#{domain} \"cd #{current_path}; RAILS_ENV=#{rails_env} script/console; #{bash}\""
+    exec "ssh -t #{user}@#{domain} -p #{port} \"cd #{current_path}; RAILS_ENV=#{rails_env} script/console; #{bash}\""
   end
 
   desc "tail rails log files" 
@@ -21,7 +23,7 @@ namespace :connect do
 
   desc "remotely dbconsole (experimental)" 
   task :dbconsole, :roles => :app do
-    exec "ssh -t #{user}@#{domain} \"cd #{current_path}; RAILS_ENV=#{rails_env} script/dbconsole; #{bash}\""
+    exec "ssh -t #{user}@#{domain} -p #{port} \"cd #{current_path}; RAILS_ENV=#{rails_env} script/dbconsole; #{bash}\""
   end
   
 end
