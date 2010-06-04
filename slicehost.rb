@@ -102,7 +102,7 @@ namespace :slicehost do
   
   task :setup do
     top.deploy.setup
-    # sudo "chown -R #{user}:#{user} /home/#{user}"
+    sudo "chown -R #{user}:#{user} #{deploy_to}" #needed when adding an app to existing server
     setup_config
     create_databases
     config_apache_vhost
