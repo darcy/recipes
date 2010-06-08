@@ -225,7 +225,7 @@ staging:
       "sudo ln -s /usr/bin/gem1.8 /usr/bin/gem",
       "sudo gem update --system",
       "sudo gem install rails --no-ri --no-rdoc",
-      "sudo gem install grit --no-ri --no-rdoc"
+      "sudo gem install grit --no-ri --no-rdoc",
       "sudo gem install nokogiri --no-ri --no-rdoc"
     ].each {|cmd| run cmd}
   end
