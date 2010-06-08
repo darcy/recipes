@@ -216,6 +216,7 @@ staging:
   desc "Install Ruby, Gems, and Rails"
   task :install_rails_stack do
     [ "sudo apt-get install ruby ruby1.8-dev irb ri rdoc libopenssl-ruby1.8 -y",
+      "sudo apt-get install libxslt1-dev libxml2-dev -y",
       "mkdir -p src",
       "cd src",
       "wget http://rubyforge.org/frs/download.php/45905/rubygems-1.3.1.tgz",
@@ -225,6 +226,7 @@ staging:
       "sudo gem update --system",
       "sudo gem install rails --no-ri --no-rdoc",
       "sudo gem install grit --no-ri --no-rdoc"
+      "sudo gem install nokogiri --no-ri --no-rdoc"
     ].each {|cmd| run cmd}
   end
   
