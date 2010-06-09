@@ -4,8 +4,8 @@ namespace :mirror do
   task :default, :roles => :db, :only => { :primary => true } do
     set :mirror_env, "development"
     environment
-    run_locally "test -e public/files && mv public/files tmp/files_#{Time.now.to_i}"
-    run_locally "ln -nfs ../#{files}/files public/files"
+    run_locally "test -e public/#{files_dirname} && mv public/#{files_dirname} tmp/#{files_dirname}_#{Time.now.to_i}"
+    run_locally "ln -nfs ../#{files}/#{files_dirname} public/#{files_dirname}"
   end
   
 
@@ -22,7 +22,7 @@ namespace :mirror do
     
     run_locally "unzip tmp/#{rails_env}-#{backup_name}.zip -d tmp/#{rails_env}-#{backup_name}"
 
-    set :files, "tmp/#{rails_env}-#{backup_name}/files-#{backup_name}"
+    set :files, "tmp/#{rails_env}-#{backup_name}/#{files_dirname}-#{backup_name}"
     run_locally "unzip #{files}.zip -d #{files}"
    
     #database

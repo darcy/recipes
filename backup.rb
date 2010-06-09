@@ -1,3 +1,4 @@
+set :files_dirname, "files"
 namespace :backup do
 
   desc "Backup both files and the database on the server, and bundles it into a zip"
@@ -10,16 +11,17 @@ namespace :backup do
   desc "Makes a backup, then downloads it to your tmp directory"
   task :download do
     default
+    `mkdir -p tmp`
     get "#{backup_path}/#{backup_name}.zip", "tmp/#{rails_env}-#{backup_name}.zip"
   end
   
   desc "Backup the files to a zip file on the server"
   task :files do
-    set :file_backup_name, "files-#{backup_name}"
+    set :file_backup_name, "#{files_dirname}-#{backup_name}"
     run "mkdir -p #{backup_path}"
     
     set :file_zip, "#{backup_path}/#{file_backup_name}.zip"
-    run "cd #{shared_path}/public/; zip -r #{file_zip} files"
+    run "cd #{shared_path}/public/; zip -r #{file_zip} #{files_dirname}"
   end
   
   desc "Backup the database to a zip file on the server"
