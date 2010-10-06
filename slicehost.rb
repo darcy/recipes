@@ -226,7 +226,8 @@ staging:
       "sudo gem update --system",
       "sudo gem install rails --no-ri --no-rdoc -v 2.3.8",
       "sudo gem install grit --no-ri --no-rdoc",
-      "sudo gem install nokogiri --no-ri --no-rdoc"
+      "sudo gem install nokogiri --no-ri --no-rdoc",
+      "sudo gem install json --no-ri --no-rdoc"
     ].each {|cmd| run cmd}
   end
   
