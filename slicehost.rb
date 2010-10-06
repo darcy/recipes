@@ -9,7 +9,7 @@
 # Mysql is still messy, generally do this when it chokes on the blue screen:
 # => cap connect
 # => sudo apt-get install mysql-server libmysql-ruby -y
-# => cap slicehost:finalize_setup
+# => cap slicehost:setup_server_finish
 #
 # Deploy
 # => cap deploy:long
@@ -61,7 +61,7 @@ namespace :slicehost do
     top.apache.reload
     install_imagemagick
     setup_crontab
-    setup    
+    setup
     sudo "chown -R #{user}:#{user} /home/#{user}"
     
     install_mysql #this is still funky - just run 'sudo apt-get install mysql-server libmysql-ruby -y'
@@ -70,6 +70,7 @@ namespace :slicehost do
 
   task :setup_server_finish do
     install_mysql_bindings
+    create_databases
   end
 
   task :setup_crontab do
@@ -104,7 +105,7 @@ namespace :slicehost do
     top.deploy.setup
     sudo "chown -R #{user}:#{user} #{deploy_to}" #needed when adding an app to existing server
     setup_config
-    create_databases
+    # # create_databases
     config_apache_vhost
     top.apache.reload
     top.crontab.setup_files
@@ -223,7 +224,7 @@ staging:
       "cd rubygems-1.3.1/ && sudo ruby setup.rb",
       "sudo ln -s /usr/bin/gem1.8 /usr/bin/gem",
       "sudo gem update --system",
-      "sudo gem install rails --no-ri --no-rdoc",
+      "sudo gem install rails --no-ri --no-rdoc -v 2.3.8",
       "sudo gem install grit --no-ri --no-rdoc",
       "sudo gem install nokogiri --no-ri --no-rdoc"
     ].each {|cmd| run cmd}
