@@ -1,4 +1,5 @@
 set :files_dirname, "files"
+set :files_location, "public/"
 namespace :backup do
 
   desc "Backup both files and the database on the server, and bundles it into a zip"
@@ -21,7 +22,7 @@ namespace :backup do
     run "mkdir -p #{backup_path}"
     
     set :file_zip, "#{backup_path}/#{file_backup_name}.zip"
-    run "cd #{shared_path}/public/; zip -r #{file_zip} #{files_dirname}"
+    run "cd #{shared_path}/#{files_location}; zip -r #{file_zip} #{files_dirname}"
   end
   
   desc "Backup the database to a zip file on the server"
