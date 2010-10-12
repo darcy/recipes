@@ -13,6 +13,7 @@ namespace :deploy do
     desc 'Iterates through "seed_files" which are presumed to be in "public", and uploads them to the server'
     task :files do
       run "mkdir -p #{seed_path}"
+      run "mkdir -p #{shared_path}/public"
       seed_files.each do |f|
         system "cd public ; zip ../tmp/#{f}.zip -r #{f} ; cd .."
         put File.read("tmp/#{f}.zip"), "#{seed_path}/#{f}.zip"

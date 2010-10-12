@@ -9,7 +9,7 @@
 # Mysql is still messy, generally do this when it chokes on the blue screen:
 # => cap connect
 # => sudo apt-get install mysql-server libmysql-ruby -y
-# => cap slicehost:finalize_setup
+# => cap slicehost:setup_server_finish
 #
 # Deploy
 # => cap deploy:long
@@ -61,7 +61,7 @@ namespace :slicehost do
     top.apache.reload
     install_imagemagick
     setup_crontab
-    setup    
+    setup
     sudo "chown -R #{user}:#{user} /home/#{user}"
     
     install_mysql #this is still funky - just run 'sudo apt-get install mysql-server libmysql-ruby -y'
@@ -70,6 +70,7 @@ namespace :slicehost do
 
   task :setup_server_finish do
     install_mysql_bindings
+    create_databases
   end
 
   task :setup_crontab do
@@ -104,7 +105,7 @@ namespace :slicehost do
     top.deploy.setup
     sudo "chown -R #{user}:#{user} #{deploy_to}" #needed when adding an app to existing server
     setup_config
-    create_databases
+    # # create_databases
     config_apache_vhost
     top.apache.reload
     top.crontab.setup_files
@@ -138,8 +139,7 @@ namespace :slicehost do
     # run "touch .ssh/authorized_keys"
     sudo "echo \"ssh-dss AAAAB3NzaC1kc3MAAACBAIpXW8t1wJO40g4swruYOZm+16Yf5QrPUozaGgt1psrJ8SFRWb49jThX5x9ZVSRi1EKdPy6Z1Hh3gBdNNW0KlMYO0ao9ZtycnS4W2MEVhH9teCtkIVzfG2xWopHyYyWtdiinGVPyu7scxw1EJGXNo5PZ59jzdsRXJtAFZgFAC9RpAAAAFQDJa/0OjzXCvZ3gorE5h4/MoYb+rwAAAIBjDc+a8zltj7tIzweqlNNtdbBHb7nwHLkbvJl0zpLw5VCk1ohp/wSOK3MRkIMOgshLm+lEWRLe5htQh/64XFZdTr2QU0YFyIE/UaefJz0W6jdwqGGny0BdBO6QAH/OBHTk0tJF8QffB2Yj6JnZaF8abyv7/s4HtHC1JwLSp6S+nQAAAIBwqrOJPTPqP3oeriPEbKnTgFwKnBRKpz208Ya2JiCK31SL0/vU7ML7H1ays5unRPpYS46PY4yZDx91+wmqY6Rn/bCHHNk6OooJu+gsS0QoDAOFtCiyfTfFiKOU1+iBEP1aeOwCF39YNHojU/EgEVcKyoJ2YFDIVgG19MCBwHbj3Q== darcy@Technicraft.local\" >> /home/#{deploy_user}/.ssh/authorized_keys"
     sudo "chmod 600 /home/#{deploy_user}/.ssh/authorized_keys"
-    sudo "chown -R #{deploy_user}:#{deploy_user} /home/#{deploy_user}/*"
-    sudo "chown -R #{deploy_user}:#{deploy_user} /home/#{deploy_user}/.*"
+    sudo "chown -R #{deploy_user}:#{deploy_user} /home/#{deploy_user}"
   end
   
   task :setup_config do
@@ -224,9 +224,10 @@ staging:
       "cd rubygems-1.3.1/ && sudo ruby setup.rb",
       "sudo ln -s /usr/bin/gem1.8 /usr/bin/gem",
       "sudo gem update --system",
-      "sudo gem install rails --no-ri --no-rdoc",
+      "sudo gem install rails --no-ri --no-rdoc -v 2.3.8",
       "sudo gem install grit --no-ri --no-rdoc",
-      "sudo gem install nokogiri --no-ri --no-rdoc"
+      "sudo gem install nokogiri --no-ri --no-rdoc",
+      "sudo gem install json --no-ri --no-rdoc"
     ].each {|cmd| run cmd}
   end
   
