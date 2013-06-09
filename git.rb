@@ -26,7 +26,7 @@ namespace :vcs do
   end
   
   task :tag_release do
-    if "production" == branch
+    if "production" == branch || (exists?(:tag_release_branch) and tag_release_branch == branch)
       name =  "prod-#{Time.new.strftime("%Y%d%m%H%M%S")}"
       run_locally source.local.scm("tag", "-f", %{"#{name}"}, fetch(:real_revision)) # real_revision executes a fetch
       run_locally source.local.scm("push", "-f", fetch(:repository), "tag", name)
