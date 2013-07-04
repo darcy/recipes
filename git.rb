@@ -26,11 +26,14 @@ namespace :vcs do
   end
   
   task :tag_release do
-    if "production" == branch || (exists?(:tag_release_branch) and tag_release_branch == branch)
-      name =  "prod-#{Time.new.strftime("%Y%d%m%H%M%S")}"
-      run_locally source.local.scm("tag", "-f", %{"#{name}"}, fetch(:real_revision)) # real_revision executes a fetch
-      run_locally source.local.scm("push", "-f", fetch(:repository), "tag", name)
-    end
+    # if "production" == branch || (exists?(:tag_release_branch) and tag_release_branch == branch)
+      # name =  "#{fetch(:web_domain)}-#{Time.new.strftime("%Y%d%m%H%M%S")}"
+      prev = "#{fetch(:web_domain)}-prev"
+      current = "#{fetch(:web_domain)}-current"
+      run_locally source.local.scm("tag", "-f", %{"#{prev}"}, %{"#{current}"}) # real_revision executes a fetch
+      run_locally source.local.scm("tag", "-f", %{"#{current}"}, fetch(:real_revision)) # real_revision executes a fetch
+      run_locally source.local.scm("push", fetch(:repository), "--tags")
+    # end
   end
   
 end
