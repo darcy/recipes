@@ -32,7 +32,7 @@ namespace :vcs do
       current = "#{fetch(:web_domain)}-current"
       run_locally source.local.scm("tag", "-f", %{"#{prev}"}, %{"#{current}"}) # real_revision executes a fetch
       run_locally source.local.scm("tag", "-f", %{"#{current}"}, fetch(:real_revision)) # real_revision executes a fetch
-      run_locally source.local.scm("push", fetch(:repository), "--tags")
+      run_locally source.local.scm("push", fetch(:repository), "--tags", '-f')
     # end
   end
   
