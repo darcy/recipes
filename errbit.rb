@@ -4,17 +4,21 @@ namespace :errbit do
   task :deploy_hook do
 
     require 'airbrake'
+    require 'cgi'
     require './config/initializers/errbit.rb'
 
     url = "https://#{Airbrake.configuration.host}/deploys.txt?api_key=#{Airbrake.configuration.api_key}"
+    prev = "#{fetch(:web_domain)}-prev"
+    current = "#{fetch(:web_domain)}-current"
+    message = run_locally(source.local.scm("log", "#{prev}..#{current}", "--pretty=format:\"%s\"")).strip
+
     data = {
-      :app => fetch(:application),
-      :url => "http://"+fetch(:web_domain),
-      :user => run_locally(source.local.scm("config", "--get", "github.user")).strip,
-      :head => run_locally(source.local.scm("rev-parse", "--short", "HEAD")).strip,
-      :head_long => run_locally(source.local.scm("rev-parse", "HEAD")).strip
-      # git_log: 
-    }.collect{|k,v| "#{k.to_s}=#{v}" }.join("&")
+      :rails_env => fetch(:rails_env),
+      :local_username => run_locally(source.local.scm("config", "--get", "github.user")).strip,
+      :scm_repository => fetch(:repository),
+      :scm_revision => run_locally(source.local.scm("rev-parse", "--short", "HEAD")).strip,
+      :message => message
+    }.collect{|k,v| "deploy[#{k.to_s}]=#{CGI.escape(v)}" }.join("&")
     run_locally "curl -silent --data \"#{data}\" #{url}"
 
     # application/x-www-form-urlencoded
