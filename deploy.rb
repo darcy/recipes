@@ -27,6 +27,6 @@ namespace :deploy do
   
 end
 
-after "deploy:symlink", "deploy:symlink_configs"
+after "deploy:create_symlink", "deploy:symlink_configs"
 after "deploy",         "deploy:cleanup"
 after "deploy:long",    "deploy:cleanup"
