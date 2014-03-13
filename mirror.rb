@@ -4,7 +4,7 @@ namespace :mirror do
   task :default, :roles => :db, :only => { :primary => true } do
     set :mirror_env, "development"
     environment
-    run_locally "test -e public/#{files_dirname} && mv public/#{files_dirname} tmp/#{files_dirname}_#{Time.now.to_i}"
+    run_locally "(test -e public/#{files_dirname} && mv public/#{files_dirname} tmp/#{files_dirname}_#{Time.now.to_i}) || true"
     run_locally "ln -nfs ../#{files}/#{files_dirname} public/#{files_dirname}"
   end
   
