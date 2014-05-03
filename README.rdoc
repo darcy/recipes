@@ -68,5 +68,4 @@ Small collection of cap recipes.
     set :web_domain, "staging.example.com"
   end
 
-  on :before, "slicehost:config"
   
