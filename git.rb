@@ -39,6 +39,6 @@ namespace :vcs do
 end
 
 # before  "deploy:update_code",     "vcs:certify"
-before  "deploy:update_code",     "vcs:get_revision"
-after   "deploy:long",            "vcs:tag_release"
-after   "deploy",                 "vcs:tag_release"
+# before  "deploy:update_code",     "vcs:get_revision"
+# after   "deploy:long",            "vcs:tag_release"
+# after   "deploy",                 "vcs:tag_release"
