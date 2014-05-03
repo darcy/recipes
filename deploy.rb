@@ -2,13 +2,13 @@ namespace :deploy do
   task :long do
     transaction do
       update_code
-      web.disable
+      # web.disable
       symlink
       migrate
     end
 
     restart
-    web.enable
+    # web.enable
   end
   
   task :symlink_configs do

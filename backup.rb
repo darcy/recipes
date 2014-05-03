@@ -30,12 +30,13 @@ namespace :backup do
     set :db_backup_name, "database-#{backup_name}"
     run "mkdir -p #{backup_path}"
     
-    run("cat #{shared_path}/config/database.yml") { |channel, stream, data| @environment_info = YAML.load(ERB.new(data).result)[rails_env] }
+    environment_info_data = capture("cat #{shared_path}/config/database.yml")
+    environment_info = YAML.load(ERB.new(environment_info_data).result)[rails_env]
   
-    dbhost = @environment_info['host'] || "localhost"
-    dbuser = @environment_info['username']
-    dbpass = @environment_info['password']
-    dbname = @environment_info['database']
+    dbhost = environment_info['host'] || "localhost"
+    dbuser = environment_info['username']
+    dbpass = environment_info['password']
+    dbname = environment_info['database']
   
     set :backup_tables, "" unless self[:backup_tables]
     # dbhost.sub!('-master', '-replica') if dbhost != 'localhost' # added for Solo offering, which uses localhost

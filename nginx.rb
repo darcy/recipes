@@ -10,7 +10,6 @@ namespace :nginx do
   
   task :restart do
     sudo "/etc/init.d/nginx restart"
-    restart
   end
 
 end
