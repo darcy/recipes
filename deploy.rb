@@ -10,7 +10,7 @@ namespace :deploy do
     restart
     # web.enable
   end
-  
+
   task :symlink_configs do
     run "mkdir -p #{latest_release}/config/initializers"
     run "mkdir -p #{shared_path}/config/initializers"
@@ -24,9 +24,9 @@ namespace :deploy do
         "xargs -i basename {} | "\
         "xargs -i ln -nfs #{shared_path}/config/initializers/{} #{latest_release}/config/initializers/{}"
   end
-  
+
 end
 
-after "deploy:create_symlink", "deploy:symlink_configs"
+before "deploy:create_symlink", "deploy:symlink_configs"
 after "deploy",         "deploy:cleanup"
 after "deploy:long",    "deploy:cleanup"
