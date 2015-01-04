@@ -1,13 +1,13 @@
 namespace :crontab do
   task :update, :roles => :app, :except => {:crontab => false} do
-    run "cd #{release_path}/script && [ -f crontab-#{rails_env} ] && crontab crontab-#{rails_env}"
+    run "cd #{release_path}/script && [ -f crontab-#{rails_env} ] && crontab crontab-#{rails_env}" if File.exists?("script/crontab-#{rails_env}")
   end
 
   desc "Display the crontab"
   task :show, :roles => :app, :except => {:crontab => false}  do
     run "crontab -l"
   end
-  
+
   task :setup_files do
     path = "PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin"
     %w(production staging).each do |stage|

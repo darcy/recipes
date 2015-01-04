@@ -1,6 +1,6 @@
 namespace :deploy do
   namespace :seed do
-  
+
     set(:seed_files) {["files"]}
     set(:seed_path) {"#{shared_path}/seeds"}
 
@@ -9,7 +9,7 @@ namespace :deploy do
       files
       db
     end
-  
+
     desc 'Iterates through "seed_files" which are presumed to be in "public", and uploads them to the server'
     task :files do
       run "mkdir -p #{seed_path}"
@@ -24,7 +24,7 @@ namespace :deploy do
 
     desc 'Dumps local db and seeds the server with it.'
     task :db do
-      run("cat #{shared_path}/config/database.yml") { |channel, stream, data| @environment_info = YAML.load(ERB.new(data).result)[rails_env] }
+      run("cat #{current_path}/config/database.yml") { |channel, stream, data| @environment_info = YAML.load(ERB.new(data).result)[rails_env] }
 
       dbhost = @environment_info['host'] || "localhost"
       dbuser = @environment_info['username']
@@ -42,11 +42,14 @@ namespace :deploy do
       run "mkdir -p #{seed_path}"
       put File.read('tmp/dump.sql'), "#{seed_path}/dump.sql"
       system "rm -f tmp/dump.sql"
-      
+
+      run "mysql -u #{dbuser} -h #{dbhost} -p -e 'CREATE DATABASE if not exists #{dbname}'" do |ch, stream, out |
+         ch.send_data "#{dbpass}\n" if out=~ /^Enter password:/
+      end
       run "mysql -u #{dbuser} -h #{dbhost} -p #{dbname} < #{seed_path}/dump.sql" do |ch, stream, out |
          ch.send_data "#{dbpass}\n" if out=~ /^Enter password:/
       end
     end
-  
+
   end
 end
