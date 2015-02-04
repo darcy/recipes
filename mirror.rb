@@ -30,10 +30,10 @@ namespace :mirror do
     run_locally "gunzip -f tmp/#{rails_env}-#{backup_name}/database-#{backup_name}.gz"
 
     mysql_options = "-u #{local_config['username']} --password='#{local_config['password']}' -h #{local_config['host'] || 'localhost'}"
-    run_locally "mysqldump #{mysql_options} #{local_config['database']} > tmp/local-#{local_config['database']}-#{Time.now.to_i}.sql"
+    run_locally "(mysql #{mysql_options} #{local_config['database']} -e exit 2>&1 > /dev/null && mysqldump #{mysql_options} #{local_config['database']} > tmp/local-#{local_config['database']}-#{Time.now.to_i}.sql) || echo 'skipping local databse dump'"
     run_locally "mysql #{mysql_options} -e \"drop database if exists #{local_config['database']}\""
     run_locally "mysqladmin #{mysql_options} create #{local_config['database']}"
-    run_locally "mysql #{mysql_options} #{local_config['database']} < tmp/#{rails_env}-#{backup_name}/database-#{backup_name}"
+    run_locally "mysql --max_allowed_packet=100M #{mysql_options} #{local_config['database']} < tmp/#{rails_env}-#{backup_name}/database-#{backup_name}"
   end
 
 end
