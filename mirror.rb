@@ -2,7 +2,7 @@ namespace :mirror do
 
   desc "Mirrors a remote server locally to the development environment (destructive)"
   task :default, :roles => :db, :only => { :primary => true } do
-    set :mirror_env, "development"
+    set :mirror_env, (ENV['RAILS_ENV'] || "development") if !exists?(:mirror_env)
     environment
     run_locally "(test -e public/#{files_dirname} && mv public/#{files_dirname} tmp/#{files_dirname}_#{Time.now.to_i}) || true"
     run_locally "ln -nfs ../#{files}/#{files_dirname} public/#{files_dirname}"
